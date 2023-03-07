@@ -63,8 +63,7 @@ class QM9(InMemoryDataset):
     E(3) Equivariant Message Passing)
     2. Add pair-wise distance for each graph. """
 
-    raw_url = ('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/'
-               'molnet_publish/qm9.zip')
+    raw_url = ('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/molnet_publish/qm9.zip')
     raw_url2 = 'https://ndownloader.figshare.com/files/3195404'
     processed_url = 'https://data.pyg.org/datasets/qm9_v3.zip'
 

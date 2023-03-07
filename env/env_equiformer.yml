@@ -1,4 +1,4 @@
-name: equiformer
+name: utk_equiformer
 channels:
   - pytorch
   - pyg
