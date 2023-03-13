@@ -137,25 +137,25 @@ def main(args):
     np.random.seed(args.seed)
     
     ''' Dataset '''
-    train_dataset = QM9(args.data_path, 'train', feature_type=args.feature_type)
-    val_dataset   = QM9(args.data_path, 'valid', feature_type=args.feature_type)
-    test_dataset  = QM9(args.data_path, 'test', feature_type=args.feature_type)
+    train_dataset = QM9(args.data_path, 'train', feature_type=args.feature_type) # QM9(110000)
+    val_dataset   = QM9(args.data_path, 'valid', feature_type=args.feature_type) # QM9(10000)
+    test_dataset  = QM9(args.data_path, 'test', feature_type=args.feature_type) # QM9(10831)
     _log.info('Training set mean: {}, std:{}'.format(
         train_dataset.mean(args.target), train_dataset.std(args.target)))
     # calculate dataset stats
     task_mean, task_std = 0, 1
-    if args.standardize:
+    if args.standardize: # true
         task_mean, task_std = train_dataset.mean(args.target), train_dataset.std(args.target)
-    norm_factor = [task_mean, task_std]
+    norm_factor = [task_mean, task_std] # [75.28121948242188, 8.177621841430664]
     
     # since dataset needs random 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # device(type='cuda')
     
     ''' Network '''
-    create_model = model_entrypoint(args.model_name)
+    create_model = model_entrypoint(args.model_name) # <function graph_attention_transformer_nonlinear_l2 at 0x7f2702769940># located in nets.graph_attention_transformer
     model = create_model(irreps_in=args.input_irreps, 
         radius=args.radius, num_basis=args.num_basis, 
         out_channels=args.output_channels, 
@@ -166,8 +166,8 @@ def main(args):
     _log.info(model)
     model = model.to(device)
     
-    model_ema = None
-    if args.model_ema:
+    model_ema = None # ema means exponential moving average --> weight decay
+    if args.model_ema: # false
         # Important to create EMA model after cuda(), DP wrapper, and AMP but before SyncBN and DDP wrapper
         model_ema = ModelEma(
             model,
@@ -175,7 +175,7 @@ def main(args):
             device='cpu' if args.model_ema_force_cpu else None)
 
     # distributed training
-    if args.distributed:
+    if args.distributed: # false
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank])
 
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -185,7 +185,7 @@ def main(args):
     optimizer = create_optimizer(args, model)
     lr_scheduler, _ = create_scheduler(args, optimizer)
     criterion = None #torch.nn.MSELoss() #torch.nn.L1Loss() # torch.nn.MSELoss() 
-    if args.loss == 'l1':
+    if args.loss == 'l1': # true
         criterion = torch.nn.L1Loss()
     elif args.loss == 'l2':
         criterion = torch.nn.MSELoss()
@@ -196,12 +196,12 @@ def main(args):
     # setup automatic mixed-precision (AMP) loss scaling and op casting
     amp_autocast = suppress  # do nothing
     loss_scaler = None
-    if args.amp:
+    if args.amp: # false
         amp_autocast = torch.cuda.amp.autocast
         loss_scaler = NativeScaler()
     
     ''' Data Loader '''
-    if args.distributed:
+    if args.distributed: # false
         sampler_train = torch.utils.data.DistributedSampler(
                 train_dataset, num_replicas=utils.get_world_size(), rank=utils.get_rank(), shuffle=True
             )
@@ -216,20 +216,20 @@ def main(args):
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size)
     
     ''' Compute stats '''
-    if args.compute_stats:
+    if args.compute_stats: # false
         compute_stats(train_loader, max_radius=args.radius, logger=_log, print_freq=args.print_freq)
         return
     
     best_epoch, best_train_err, best_val_err, best_test_err = 0, float('inf'), float('inf'), float('inf')
     best_ema_epoch, best_ema_val_err, best_ema_test_err = 0, float('inf'), float('inf')
     
-    for epoch in range(args.epochs):
+    for epoch in range(args.epochs): # 300
         
         epoch_start_time = time.perf_counter()
         
         lr_scheduler.step(epoch)
 
-        if args.distributed:
+        if args.distributed: # false
             train_loader.sampler.set_epoch(epoch)
         
         train_err = train_one_epoch(model=model, criterion=criterion, norm_factor=norm_factor,

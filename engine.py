@@ -59,16 +59,18 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         data = data.to(device)
         #data.edge_d_index = radius_graph(data.pos, r=10.0, batch=data.batch, loop=True)
         #data.edge_d_attr = data.edge_attr
+        """DataBatch(x=[544, 5], edge_index=[2, 1122], edge_attr=[1122, 4], y=[32, 19], pos=[544, 3], z=[544], name=[32], index=[32], edge_d_index=[2, 9488], edge_d_attr=[9488], batch=[544], ptr=[33])"""
         with amp_autocast():
             pred = model(f_in=data.x, pos=data.pos, batch=data.batch, 
                 node_atom=data.z,
                 edge_d_index=data.edge_d_index, edge_d_attr=data.edge_d_attr)
-            pred = pred.squeeze()
+            pred = pred.squeeze() # torch.Size([32])
             #loss = (pred - data.y[:, target])
             #loss = loss.pow(2).mean()
             #atomref_value = atomref(data.z)
 
-            loss = criterion(pred, (data.y[:, target] - task_mean) / task_std)
+            loss = criterion(pred, (data.y[:, target] - task_mean) / task_std) # note y is normalized here
+            #data.y -->torch.Size([32, 19]) --> 19 properties?
         
         optimizer.zero_grad()
         if loss_scaler is not None:
