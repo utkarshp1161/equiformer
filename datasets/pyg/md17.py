@@ -24,7 +24,7 @@ class MD17(InMemoryDataset):
         uracil="uracil_dft.npz",
     )
 
-    # We note that the file names have been changed.
+    # We note that the file names have been changed. # ok I can see 
     # For example, `aspirin_dft` -> `md17_aspirin`
     # See https://github.com/pyg-team/pytorch_geometric/commit/213f0ff95140eb1a1fbf7d99b012d458ef360f71#diff-a85570faabaf1806684e5b6654deed3863273bbe703f237846accd11948f4675
     molecule_files = dict(
@@ -41,6 +41,12 @@ class MD17(InMemoryDataset):
     available_molecules = list(molecule_files.keys())
 
     def __init__(self, root, dataset_arg, transform=None, pre_transform=None):
+        """
+        example:
+            root: "/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin"
+            dataset_arg: aspirin
+
+        """
         assert dataset_arg is not None, (
             "Please provide the desired comma separated molecule(s) through"
             f"'dataset_arg'. Available molecules are {', '.join(MD17.available_molecules)} "
@@ -53,7 +59,7 @@ class MD17(InMemoryDataset):
         if dataset_arg == "all":
             dataset_arg = ",".join(MD17.available_molecules)
         '''
-        self.molecules = dataset_arg.split(",")
+        self.molecules = dataset_arg.split(",")# ['aspirin']
 
         '''
         if len(self.molecules) > 1:
@@ -63,12 +69,12 @@ class MD17(InMemoryDataset):
             )
         '''
 
-        super(MD17, self).__init__(root, transform, pre_transform)
+        super(MD17, self).__init__(root, transform, pre_transform)# it runs the process function
 
         self.offsets = [0]
         self.data_all, self.slices_all = [], []
-        for path in self.processed_paths:
-            data, slices = torch.load(path)
+        for path in self.processed_paths:# ['/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin/processed/md17-aspirin.pt']
+            data, slices = torch.load(path)#
             self.data_all.append(data)
             self.slices_all.append(slices)
             self.offsets.append(
@@ -90,19 +96,19 @@ class MD17(InMemoryDataset):
 
     @property
     def raw_file_names(self):
-        return [MD17.molecule_files[mol] for mol in self.molecules]
+        return [MD17.molecule_files[mol] for mol in self.molecules]# this name of npz file to be loaded
 
     @property
     def processed_file_names(self):
-        return [f"md17-{mol}.pt" for mol in self.molecules]
+        return [f"md17-{mol}.pt" for mol in self.molecules]# ['/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin/processed/md17-aspirin.pt']
 
     def download(self):
         for file_name in self.raw_file_names:
             download_url(MD17.raw_url + file_name, self.raw_dir)
 
     def process(self):
-        for path in self.raw_paths:
-            data_npz = np.load(path)
+        for path in self.raw_paths:# output of function raw_file_names
+            data_npz = np.load(path)#/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin/raw/md17_aspirin.npz
             z = torch.from_numpy(data_npz["z"]).long()
             positions = torch.from_numpy(data_npz["R"]).float()
             energies = torch.from_numpy(data_npz["E"]).float()

@@ -8,15 +8,14 @@
 export PYTHONNOUSERSITE=True    # prevent using packages from base
 
 
-
-python main_md17.py \
-    --output-dir '/home/sire/phd/srz228573/benchmarking_datasets/equiformer_output/se_l2/target@benzene/lr@1e-4_wd@1e-6_epochs@1500_w-f2e@80_dropout@0.0_exp@32_l2mae-loss' \
+python main_npz_md17.py \
+    --output-dir '/home/sire/phd/srz228573/equiformer/data_sl/fone_output/equiformer/npz_md17/se_l2/aspirin' \
     --model-name 'graph_attention_transformer_nonlinear_exp_l2_md17' \
     --input-irreps '64x0e' \
-    --target 'benzene' \
-    --data-path 'datasets/md17' \
+    --target 'aspirin' \
+    --data-path '/home/sire/phd/srz228573/equiformer/data_sl/fone_dataset/mdsim_data/md17/aspirin/10k/' \
     --epochs 1500 \
-    --lr 1e-4 \
+    --lr 5e-4 \
     --batch-size 8 \
     --weight-decay 1e-6 \
     --num-basis 32 \

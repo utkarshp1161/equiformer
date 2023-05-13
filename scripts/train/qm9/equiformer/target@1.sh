@@ -29,7 +29,7 @@ python main_qm9.py \
     --model-name 'graph_attention_transformer_nonlinear_l2' \
     --input-irreps '5x0e' \
     --target 1 \
-    --data-path '/home/m3rg2000/utkarsh/sym_link/utkarsh_data/equiformer/qm9' \
+    --data-path '/home/sire/phd/srz228573/scratch/equiformer' \
     --feature-type 'one_hot' \
     --batch-size 32 \
     --radius 5.0 \
