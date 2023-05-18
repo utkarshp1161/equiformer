@@ -114,10 +114,10 @@ class MD17(InMemoryDataset):
         path = self.root + "/nequip_npz.npz"
         # for path in self.raw_paths:# output of function raw_file_names
         data_npz = np.load(path)#/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin/raw/md17_aspirin.npz
-        z = torch.from_numpy(data_npz["z"]).long()
-        positions = torch.from_numpy(data_npz["R"]).float()
-        energies = torch.from_numpy(data_npz["E"]).float()
-        forces = torch.from_numpy(data_npz["F"]).float()
+        z = torch.from_numpy(data_npz["atomic_numbers"]).long()
+        positions = torch.from_numpy(data_npz['pos']).float()
+        energies = torch.from_numpy(data_npz['energy']).float()
+        forces = torch.from_numpy(data_npz["forces"]).float()
 
         samples = []
         for pos, y, dy in zip(positions, energies, forces):

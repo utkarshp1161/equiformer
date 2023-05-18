@@ -84,6 +84,7 @@ class MD17(InMemoryDataset):
             directory_path = os.path.dirname(path)
             import shutil
             shutil.rmtree(directory_path) # remove processed folder as it is not needed anymore
+        
 
     def len(self):
         return sum(
@@ -114,15 +115,16 @@ class MD17(InMemoryDataset):
         path = self.root + "/nequip_npz.npz"
         # for path in self.raw_paths:# output of function raw_file_names
         data_npz = np.load(path)#/home/sire/phd/srz228573/equiformer/data_sl/equiformer_data/md17/aspirin/raw/md17_aspirin.npz
-        z = torch.from_numpy(data_npz["z"]).long()
-        positions = torch.from_numpy(data_npz["R"]).float()
-        energies = torch.from_numpy(data_npz["E"]).float()
-        forces = torch.from_numpy(data_npz["F"]).float()
+        z = torch.from_numpy(data_npz["nuclear_charges"]).long()
+        positions = torch.from_numpy(data_npz['coords']).float()
+        energies = torch.from_numpy(data_npz['energies']).float()
+        forces = torch.from_numpy(data_npz['forces']).float()
 
         samples = []
         for pos, y, dy in zip(positions, energies, forces):
-            # import pdb as pdb
-            # pdb.set_trace()
+            #import pdb as pdb
+            #pdb.set_trace()
+            y = torch.unsqueeze(y, 0)
             samples.append(Data(z=z, pos=pos, y=y.unsqueeze(1), dy=dy))
 
         if self.pre_filter is not None:
